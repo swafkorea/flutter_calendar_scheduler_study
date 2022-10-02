@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// 일정 입력 폼
 class ScheduleForm extends StatefulWidget {
   final DateTime selectedDate;
 

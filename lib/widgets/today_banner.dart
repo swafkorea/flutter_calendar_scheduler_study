@@ -14,7 +14,7 @@ class TodayBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('yyyy-MM-dd');
+    final dateFormat = DateFormat('yyyy-MM-dd'); // @NOTE 21 intl 사용한 포멧 정의
     const textStyle = TextStyle(
       color: Colors.white,
       // fontSize: 16.0,
@@ -29,7 +29,7 @@ class TodayBanner extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              dateFormat.format(selectedDay),
+              dateFormat.format(selectedDay), // @NOTE 21-1 포멧 적용
               style: textStyle,
             ),
             Text(

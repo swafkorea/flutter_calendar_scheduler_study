@@ -5,6 +5,10 @@ import 'constants.dart';
 
 ThemeData appTheme(BuildContext context) => ThemeData(
       primarySwatch: primaryColor,
+      // @NOTE 04 google_fonts 사용
+      // @NOTE 04-1 간단하게는 다음처럼...
+      // fontFamily: GoogleFonts.nanumPenScript().fontFamily,
+      // 참고: https://api.flutter.dev/flutter/material/TextTheme-class.html
       textTheme: GoogleFonts.nanumPenScriptTextTheme(
         Theme.of(context).textTheme.copyWith(
               headline1: const TextStyle(fontSize: fontSize * 6.0),

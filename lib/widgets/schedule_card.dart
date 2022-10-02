@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 
+/// 일정 목록 아이템
 class ScheduleCard extends StatelessWidget {
   final int startTime;
   final int endTime;
@@ -42,6 +43,7 @@ class ScheduleCard extends StatelessWidget {
   }
 }
 
+/// 분류 색상 표시
 class _Category extends StatelessWidget {
   const _Category({
     Key? key,
@@ -90,11 +92,12 @@ class _Time extends StatelessWidget {
         ),
         Text(
           '~ ${timeDigit(endTime)}',
-          style: textStyle.copyWith(fontSize: fontSize * 0.8),
+          style: textStyle.copyWith(fontSize: fontSize * 0.8), // @NOTE 31 기본 스타일 override
         ),
       ],
     );
   }
 
+  /// 일정 시각 포멧
   String timeDigit(int time) => '${time.toString().padLeft(2, '0')}:00';
 }

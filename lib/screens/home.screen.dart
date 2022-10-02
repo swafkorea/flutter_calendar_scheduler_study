@@ -7,6 +7,7 @@ import 'package:calendar_scheduler_study/widgets/today_banner.dart';
 
 import '../widgets/schedule_form.dart';
 
+// @NOTE 05 Widget inspector 확인
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -55,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// table calendar 날짜 선택했을때 동작
   onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
       this.selectedDay = selectedDay;
@@ -62,6 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  /// 일정 추가
+  ///
+  /// ScheduleForm을 포함한 bottomSheet을 띄운다.
   onAddSchedule() {
     showModalBottomSheet(
       context: context,
@@ -82,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+/// 일정을 추가하기 위한 Floating button
 class _AddButton extends StatelessWidget {
   final VoidCallback onAddSchedule;
 
@@ -102,6 +108,7 @@ class _AddButton extends StatelessWidget {
   }
 }
 
+/// selectedDay에 해당하는 일정 목록
 class _ScheduleList extends StatelessWidget {
   const _ScheduleList({
     Key? key,
@@ -109,6 +116,7 @@ class _ScheduleList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // @NOTE 06 ListView.separated 사용
     return ListView.separated(
       itemBuilder: (context, index) {
         return const ScheduleCard(
