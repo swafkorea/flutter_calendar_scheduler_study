@@ -1,16 +1,49 @@
-# calendar_scheduler_study
+# 캘린더 스케쥴러
 
-A new Flutter project.
+플러터 스터디 실습
 
-## Getting Started
+## Collaborators
+  - windy
+  - 핑구플리
 
-This project is a starting point for a Flutter application.
+## Dependencies
+  - google_fonts
+  - drift
+  - intl
+  - path
+  - path_provider
+  - sqlite3_flutter_libs
+  - table_calendar
 
-A few resources to get you started if this is your first Flutter project:
+  ~~~
+  google_fonts, drift, intl, path, path_provider, sqlite3_flutter_libs, table_calendar
+  ~~~
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Dev dependencies
+  - build_runner
+  - drift_dev
+
+  ~~~
+  build_runner, drift_dev
+  ~~~
+  > [path, path_provider, sqlite3_flutter_libs, build_runner, drift_dev]는 drift 사용에 필요한 패키지
+
+  > get_it 패키지 검토 : 종속성 주입
+
+## File structures
+~~~
+lib/
+  models/
+    - schedule.model.dart
+    - ...
+  screens/
+    - home.screen.dart
+  widgets/
+    - calendar.dart
+    - schedule_card.dart
+    - ...
+  main.dart
+  constants.dart
+  theme.dart
+~~~
