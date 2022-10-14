@@ -92,7 +92,7 @@ class _Time extends StatelessWidget {
         ),
         Text(
           '~ ${timeDigit(endTime)}',
-          style: textStyle.copyWith(fontSize: fontSize * 0.8), // @NOTE 31 기본 스타일 override
+          style: textStyle.copyWith(fontSize: fontSize * 0.8), // 기본 스타일 override
         ),
       ],
     );

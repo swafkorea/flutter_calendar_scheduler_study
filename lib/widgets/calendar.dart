@@ -33,7 +33,7 @@ class Calendar extends StatelessWidget {
     );
 
     return TableCalendar(
-      locale: 'ko_KR', // @NOTE 11 한국어 로케일 지정 (main.dart에서 initializeDateFormatting() 필요함)
+      locale: 'ko_KR', // ! 한국어 로케일 지정 (main.dart에서 initializeDateFormatting() 필요함)
       focusedDay: focusedDay,
       firstDay: DateTime(2000),
       lastDay: DateTime(3000),
@@ -55,8 +55,7 @@ class Calendar extends StatelessWidget {
           color: Colors.white,
           border: Border.all(color: primaryColor, width: 1.0),
         ),
-        outsideDecoration: const BoxDecoration(
-            shape: BoxShape.rectangle), // @NOTE 12 circle은 borderRadius를 가질 수 없음
+        outsideDecoration: const BoxDecoration(shape: BoxShape.rectangle),
         defaultTextStyle: defaultTextStyle,
         weekendTextStyle: defaultTextStyle,
         selectedTextStyle: defaultTextStyle.copyWith(color: primaryColor),
@@ -64,7 +63,7 @@ class Calendar extends StatelessWidget {
       startingDayOfWeek: StartingDayOfWeek.monday,
       onDaySelected: onDaySelected,
       selectedDayPredicate: (day) {
-        // @NOTE 13 day가 선택한 날짜와 같은 조건인지 판별하여 bool을 리턴
+        // day가 선택한 날짜와 같은 조건인지 판별하여 bool을 리턴
         final localDay = selectedDay?.toLocal();
         return localDay?.year == day.year &&
             localDay?.month == day.month &&

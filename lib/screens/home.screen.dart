@@ -7,7 +7,6 @@ import 'package:calendar_scheduler_study/widgets/today_banner.dart';
 
 import '../widgets/schedule_form.dart';
 
-// @NOTE 05 Widget inspector 확인
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -71,12 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(8.0),
-        ),
-      ),
+      isScrollControlled: true, // @NOTE 02 bottomSheet가 화면 절반높이 제한을 넘을 수 있도록 해줌
       elevation: 3,
       builder: (_) => SafeArea(
         child: ScheduleForm(
@@ -116,7 +110,6 @@ class _ScheduleList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // @NOTE 06 ListView.separated 사용
     return ListView.separated(
       itemBuilder: (context, index) {
         return const ScheduleCard(

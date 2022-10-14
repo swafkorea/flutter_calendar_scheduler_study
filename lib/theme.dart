@@ -5,8 +5,8 @@ import 'constants.dart';
 
 ThemeData appTheme(BuildContext context) => ThemeData(
       primarySwatch: primaryColor,
-      // @NOTE 04 google_fonts 사용
-      // @NOTE 04-1 간단하게는 다음처럼...
+      // google_fonts 사용
+      // 간단하게는 다음처럼...
       // fontFamily: GoogleFonts.nanumPenScript().fontFamily,
       // 참고: https://api.flutter.dev/flutter/material/TextTheme-class.html
       textTheme: GoogleFonts.nanumPenScriptTextTheme(
@@ -25,5 +25,11 @@ ThemeData appTheme(BuildContext context) => ThemeData(
               caption: const TextStyle(fontSize: fontSize * 0.75),
               overline: const TextStyle(fontSize: fontSize * 0.625),
             ),
+      ),
+      // @NOTE 03 input field theme
+      inputDecorationTheme: InputDecorationTheme(
+        border: InputBorder.none,
+        filled: true,
+        fillColor: Colors.grey[200],
       ),
     );
