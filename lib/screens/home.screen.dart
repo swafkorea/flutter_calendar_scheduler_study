@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      isScrollControlled: true, // @NOTE 02 bottomSheet가 화면 절반높이 제한을 넘을 수 있도록 해줌
+      isScrollControlled: true, // @NOTE 01-3 bottomSheet가 화면 절반높이 제한을 넘을 수 있도록 해줌
       elevation: 3,
       builder: (_) => SafeArea(
         child: ScheduleForm(
