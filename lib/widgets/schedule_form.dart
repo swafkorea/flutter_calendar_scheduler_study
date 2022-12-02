@@ -215,7 +215,7 @@ class _ColorPicker extends StatelessWidget {
       children: colors
           .map(
             (e) => _ColorPickerItem(
-              colorCode: e.toString(),
+              colorCode: e,
             ),
           )
           .toList(),
@@ -224,7 +224,7 @@ class _ColorPicker extends StatelessWidget {
 }
 
 class _ColorPickerItem extends StatelessWidget {
-  final String colorCode;
+  final Color colorCode;
 
   const _ColorPickerItem({
     Key? key,
@@ -233,13 +233,10 @@ class _ColorPickerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Color: $colorCode');
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Color(
-          int.parse('FF$colorCode', radix: 16),
-        ),
+        color: colorCode
       ),
       width: 32,
       height: 32,
