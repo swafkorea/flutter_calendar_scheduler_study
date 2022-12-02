@@ -101,7 +101,7 @@ class _ScheduleFormState extends State<ScheduleForm> {
         child: Container(
           color: Colors.white, // @NOTE 05-1 지정 안했을때 focus out 동작 확인
           height: MediaQuery.of(context).size.height / 2 +
-              bottomInset, // @NOTE 01-1 키패드 만큼 사이즈를 늘여줌.
+              bottomInset,  // @NOTE 01-1 키패드 만큼 사이즈를 늘여줌.
           child: Padding(
             padding: const EdgeInsets.all(spaceSize / 2)
                 .copyWith(bottom: bottomInset), // @NOTE 01-2 하단 여백
@@ -233,6 +233,7 @@ class _ColorPickerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Color: $colorCode');
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
