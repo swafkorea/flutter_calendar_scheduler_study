@@ -40,12 +40,12 @@ class CustomTextField extends StatelessWidget {
 
       // 3 - 01. Validation 모드
       // inputFormatter로 무조건 숫자로 들어갈 수 있음
-      validator: (String? val){
-        if(val == null || val.isEmpty){
+      validator: (String? val) {
+        if (val == null || val.isEmpty) {
           return '값을 입력해주세요';
         }
 
-        if(isTime) {
+        if (isTime) {
           int time = int.parse(val);
 
           if (time < 0) {
@@ -54,19 +54,19 @@ class CustomTextField extends StatelessWidget {
           if (time > 24) {
             return '24 이하의 숫자를 입력해주세요';
           }
-        }else{
-          if(val.length > 500){
+        } else {
+          if (val.length > 500) {
             return '500자 이하의 글자를 입력해주세요';
           }
         }
 
         return null;
       },
-      // @NOTE 06-1 keyboard layout을 선택, 사용자의 입력값은 제약할 수 없음
+      // keyboard layout을 선택, 사용자의 입력값은 제약할 수 없음
       keyboardType: isTime ? TextInputType.number : TextInputType.multiline,
-      // @NOTE 06-2 사용자 입력값 제약
+      // 사용자 입력값 제약
       inputFormatters: isTime ? [FilteringTextInputFormatter.digitsOnly] : [],
-      // @NOTE 07 multiline 관련 속성
+      // multiline 관련 속성
       maxLines: isTime ? 1 : null,
       expands: !isTime,
     );

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'constants.dart';
 
 ThemeData appTheme(BuildContext context) => ThemeData(
+      // @TODO material3 적용
       primarySwatch: primaryColor,
       // google_fonts 사용
       // 간단하게는 다음처럼...
@@ -26,7 +27,7 @@ ThemeData appTheme(BuildContext context) => ThemeData(
               overline: const TextStyle(fontSize: fontSize * 0.625),
             ),
       ),
-      // @NOTE 03 input field theme
+      // input field theme
       inputDecorationTheme: InputDecorationTheme(
         border: InputBorder.none,
         filled: true,

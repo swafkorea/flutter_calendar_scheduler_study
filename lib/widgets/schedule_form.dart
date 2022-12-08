@@ -30,23 +30,23 @@ class _ScheduleFormState extends State<ScheduleForm> {
   int? endTime;
   String? content;
 
+  AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
+
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom; // @NOTE 01 키패드가 차지하는 높이
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom; // 키패드가 차지하는 높이
 
     return GestureDetector(
       onTap: () {
-        // @NOTE 05 text field 밖으로 포커스가 이동될 때 키보드 숨김
+        // text field 밖으로 포커스가 이동될 때 키보드 숨김
         FocusScope.of(context).requestFocus(FocusNode());
       },
       child: SafeArea(
         child: Container(
-          color: Colors.white, // @NOTE 05-1 지정 안했을때 focus out 동작 확인
-          height:
-              MediaQuery.of(context).size.height / 2 + bottomInset, // @NOTE 01-1 키패드 만큼 사이즈를 늘여줌.
+          color: Colors.white, // 지정 안했을때 focus out 동작 확인
+          height: MediaQuery.of(context).size.height / 2 + bottomInset, // 키패드 만큼 사이즈를 늘여줌.
           child: Padding(
-            padding: const EdgeInsets.all(spaceSize / 2)
-                .copyWith(bottom: bottomInset), // @NOTE 01-2 하단 여백
+            padding: const EdgeInsets.all(spaceSize / 2).copyWith(bottom: bottomInset), // 하단 여백
             // 2 - 02. 입력값의 상위 컴포넌트에 Form 필드로 감싸준다
             // key 값을 지정해줌 form안에 있는 모든 텍스트 필드들이 어덯게
             // 동작하는지 컨트롤해주는 값
@@ -54,7 +54,7 @@ class _ScheduleFormState extends State<ScheduleForm> {
               // 2 - 04. key에 formKey를 넣어준다
               key: formKey,
               // 3 - 02. 자동으로 검증한다
-              autovalidateMode: AutovalidateMode.always,
+              autovalidateMode: autovalidateMode,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -191,11 +191,9 @@ class _SaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: const Text('저장'),
-      ),
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: const Text('저장'),
     );
   }
 }
@@ -210,7 +208,7 @@ class _ColorPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // @NOTE 04 item들 사이에 간격을 주기 위해서 wrap widget 사용
+    // item들 사이에 간격을 주기 위해서 wrap widget 사용
     return Wrap(
       spacing: 8,
       runSpacing: 10,
