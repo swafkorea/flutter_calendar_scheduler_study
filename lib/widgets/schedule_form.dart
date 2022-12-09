@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value; // @NOTE 05-2 Column 충돌을 막기 위해 Value만 가져옴.
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -29,7 +30,7 @@ class _ScheduleFormState extends State<ScheduleForm> {
   int? startTime;
   int? endTime;
   String? content;
-  int selectedColorId = 0; // @NOTE 03 선택된 색깔을 구분하기 위한 변수 추가
+  int? selectedColorId; // @NOTE 03 선택된 색깔을 구분하기 위한 변수 추가
 
   // @NOTE 01 최초 autovalidateMode는 꺼둔 상태
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
@@ -78,7 +79,9 @@ class _ScheduleFormState extends State<ScheduleForm> {
                     future: GetIt.I<LocalDatabase>().getCategoryColors(),
                     builder: (context, snapshot) {
                       // @NOTE 03-1 selectedColorId가 지정되지 않았으면 첫번째 색상으로 지정
-                      if (snapshot.hasData && selectedColorId == 0 && snapshot.data!.isNotEmpty) {
+                      if (snapshot.hasData &&
+                          selectedColorId == null &&
+                          snapshot.data!.isNotEmpty) {
                         selectedColorId = snapshot.data![0].id;
                       }
 
@@ -109,7 +112,7 @@ class _ScheduleFormState extends State<ScheduleForm> {
   }
 
   // 2 - 05. 저장 버튼을 눌렀을 떄 작동하는 코드
-  void onSavePressed() {
+  void onSavePressed() async {
     // formKey는 생성을 했는데
     // Form 위젯과 결합을 안했을때
     if (formKey.currentState == null) {
@@ -124,10 +127,16 @@ class _ScheduleFormState extends State<ScheduleForm> {
       // true 리턴했을 떄
       formKey.currentState!.save();
 
-      print('-------------');
-      print('startTime : $startTime');
-      print('endTime : $endTime');
-      print('content : $content');
+      // @NOTE 05 폼 정보 저장 - schedule 생성
+      final key = await GetIt.I<LocalDatabase>().createSchedule(SchedulesCompanion(
+        date: Value(widget.selectedDate),
+        startTime: Value(startTime!),
+        endTime: Value(endTime!),
+        content: Value(content!),
+        colorId: Value(selectedColorId!),
+      ));
+
+      Navigator.of(context).pop(); // @NOTE 05-1 저장 후 bottomSheet 닫기
     } else {
       // false
       print('에러가 있습니다');
@@ -207,7 +216,7 @@ class _SaveButton extends StatelessWidget {
 
 class _ColorPicker extends StatelessWidget {
   final List<CategoryColor> colors;
-  final int selectedColorId;
+  final int? selectedColorId;
   final ValueChanged<int> colorSetter;
 
   const _ColorPicker({
