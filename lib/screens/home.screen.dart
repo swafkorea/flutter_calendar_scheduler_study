@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import 'package:calendar_scheduler_study/constants.dart';
+import 'package:calendar_scheduler_study/database/drift_database.dart';
 import 'package:calendar_scheduler_study/widgets/calendar.dart';
 import 'package:calendar_scheduler_study/widgets/schedule_card.dart';
 import 'package:calendar_scheduler_study/widgets/today_banner.dart';
@@ -36,13 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: spaceSize / 2),
             TodayBanner(
               selectedDay: selectedDay,
-              scheduleCount: 4,
             ),
             const SizedBox(height: spaceSize / 2),
-            const Flexible(
+            Flexible(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: spaceSize / 2),
-                child: _ScheduleList(),
+                padding: const EdgeInsets.symmetric(horizontal: spaceSize / 2),
+                child: _ScheduleList(selectedDate: selectedDay),
               ),
             ),
           ],
@@ -104,23 +105,46 @@ class _AddButton extends StatelessWidget {
 
 /// selectedDay에 해당하는 일정 목록
 class _ScheduleList extends StatelessWidget {
+  final DateTime selectedDate;
+
   const _ScheduleList({
     Key? key,
+    required this.selectedDate,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemBuilder: (context, index) {
-        return const ScheduleCard(
-          startTime: 9,
-          endTime: 14,
-          content: 'Test',
-          color: Colors.teal,
-        );
-      },
-      separatorBuilder: (context, index) => const SizedBox(height: spaceSize / 4),
-      itemCount: 8,
-    );
+    return StreamBuilder<List<Schedule>>(
+        // @NOTE 06-3 stream 으로 일정 목록 읽어와 렌더링
+        stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
+        builder: (context, snapshot) {
+          // @NOTE 06-4 data가 없을때 예외 처리
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (snapshot.hasData && snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('일정이 없습니다.'),
+            );
+          }
+
+          return ListView.separated(
+            itemBuilder: (context, index) {
+              final item = snapshot.data![index]; // @NOTE 06-5 데이터 사용
+
+              return ScheduleCard(
+                startTime: item.startTime,
+                endTime: item.endTime,
+                content: item.content,
+                color: Colors.teal,
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: spaceSize / 4),
+            itemCount: snapshot.data!.length, // @NOTE 06-5 데이터 사용
+          );
+        });
   }
 }

@@ -8,7 +8,6 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-
 // 데이터베이스를 연결할 코드를 작성할 drift_datgabase.dart를 생성
 // part는 private 값까지 불러올 수 있다
 // g는 generate라는 뜻
@@ -26,14 +25,23 @@ part 'drift_database.g.dart';
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase() : super(_openConnection());
 
-  Future<int> createSchedule(SchedulesCompanion data) =>
-      into(schedules).insert(data);
+  Future<int> createSchedule(SchedulesCompanion data) => into(schedules).insert(data);
 
   Future<int> createCategoryColor(CategoryColorsCompanion data) =>
       into(categoryColors).insert(data);
 
-  Future<List<CategoryColor>> getCategoryColors() =>
-      select(categoryColors).get();
+  Future<List<CategoryColor>> getCategoryColors() => select(categoryColors).get();
+
+  // @NOTE 06 stream을 리턴하는 메소드 생성
+  Stream<List<Schedule>> watchSchedules(DateTime date) {
+    date = DateTime(date.year, date.month, date.day).toUtc();
+
+    final query = select(schedules)
+      ..where((tbl) => tbl.date.equals(date)) // @NOTE 06-1 date로 필터링
+      ..orderBy([(x) => OrderingTerm.asc(x.startTime)]); // @NOTE 06-2 날짜순 정렬
+
+    return query.watch();
+  }
 
   @override
   int get schemaVersion => 1;
