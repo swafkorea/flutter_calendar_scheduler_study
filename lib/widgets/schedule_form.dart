@@ -1,9 +1,9 @@
-import 'package:calendar_scheduler_study/database/drift_database.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import 'package:calendar_scheduler_study/constants.dart';
+import 'package:calendar_scheduler_study/database/drift_database.dart';
 import 'package:calendar_scheduler_study/widgets/custom_text_field.dart';
-import 'package:get_it/get_it.dart';
 
 /// 일정 입력 폼
 class ScheduleForm extends StatefulWidget {
@@ -29,7 +29,9 @@ class _ScheduleFormState extends State<ScheduleForm> {
   int? startTime;
   int? endTime;
   String? content;
+  int? selectedColorId; // @NOTE 03 선택된 색깔을 구분하기 위한 변수 추가
 
+  // @NOTE 01 최초 autovalidateMode는 꺼둔 상태
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
 
   @override
@@ -75,20 +77,21 @@ class _ScheduleFormState extends State<ScheduleForm> {
                   FutureBuilder<List<CategoryColor>>(
                       future: GetIt.I<LocalDatabase>().getCategoryColors(),
                       builder: (context, snapshot) {
-                        print(snapshot.data);
+                        // @NOTE 03-1 selectedColorId가 지정되지 않았으면 첫번째 색상으로 지정
+                        if (snapshot.hasData &&
+                            selectedColorId == null &&
+                            snapshot.data!.isNotEmpty) {
+                          selectedColorId = snapshot.data![0].id;
+                        }
                         return _ColorPicker(
-                          colors: snapshot.hasData
-                              ? snapshot.data!
-                                  .map(
-                                    (e) => Color(
-                                      int.parse(
-                                        'FF${e.hexCode}',
-                                        radix: 16,
-                                      ),
-                                    ),
-                                  )
-                                  .toList()
-                              : [],
+                          colors: snapshot.hasData ? snapshot.data! : [],
+                          selectedColorId: selectedColorId!,
+                          // @NOTE 04-2 callback 함수, setState를 하기 위해 인자로 함수를 전달
+                          colorSetter: (id) {
+                            setState(() {
+                              selectedColorId = id;
+                            });
+                          },
                         );
                       }),
                   const SizedBox(height: spaceSize),
@@ -114,6 +117,10 @@ class _ScheduleFormState extends State<ScheduleForm> {
     if (formKey.currentState == null) {
       return;
     }
+
+    // @NOTE 01-1 저장 버튼을 누른 후 autovalidateMode를 활성화
+    autovalidateMode = AutovalidateMode.always;
+
     // validate가 null을 반환할 경우 에러가 없음
     if (formKey.currentState!.validate()) {
       // true 리턴했을 떄
@@ -143,6 +150,8 @@ class _Time extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      // @NOTE 02 validation error 가 표시될때 정렬을 위해서 start align
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: CustomTextField(
@@ -151,7 +160,7 @@ class _Time extends StatelessWidget {
             onSaved: onStartSaved,
           ),
         ),
-        SizedBox(width: spaceSize),
+        const SizedBox(width: spaceSize),
         Expanded(
           child: CustomTextField(
             label: '마감 시간',
@@ -199,11 +208,15 @@ class _SaveButton extends StatelessWidget {
 }
 
 class _ColorPicker extends StatelessWidget {
-  final List<Color> colors;
+  final List<CategoryColor> colors;
+  final int selectedColorId;
+  final ValueChanged<int> colorSetter;
 
   const _ColorPicker({
-    required this.colors,
     Key? key,
+    required this.colors,
+    required this.selectedColorId,
+    required this.colorSetter,
   }) : super(key: key);
 
   @override
@@ -214,8 +227,15 @@ class _ColorPicker extends StatelessWidget {
       runSpacing: 10,
       children: colors
           .map(
-            (e) => _ColorPickerItem(
-              colorCode: e,
+            // @NOTE 04 GestureDetector로 색깔선택 이벤트 연결
+            (e) => GestureDetector(
+              onTap: () {
+                colorSetter(e.id); // @NOTE 04-1 인자로 추가한 callback 호출
+              },
+              child: _ColorPickerItem(
+                categoryColor: e,
+                isSelected: selectedColorId == e.id, // @NOTE 03-2 selectedColorId와 같은 id 인지 비교
+              ),
             ),
           )
           .toList(),
@@ -224,19 +244,45 @@ class _ColorPicker extends StatelessWidget {
 }
 
 class _ColorPickerItem extends StatelessWidget {
-  final Color colorCode;
+  final CategoryColor categoryColor;
+  final bool isSelected;
 
   const _ColorPickerItem({
     Key? key,
-    required this.colorCode,
+    required this.categoryColor,
+    required this.isSelected,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final color = Color(
+      int.parse(
+        'FF${categoryColor.hexCode}',
+        radix: 16,
+      ),
+    );
+    final counterColor = color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
     return Container(
-      decoration: BoxDecoration(shape: BoxShape.circle, color: colorCode),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+        // @NOTE 03-3 isSelected 일때만 border 표시
+        border: isSelected
+            ? Border.all(
+                color: Colors.black,
+                width: 4,
+              )
+            : null,
+      ),
       width: 32,
       height: 32,
+      // @NOTE 03-4 isSelected 일때만 icon 표시
+      child: isSelected
+          ? Icon(
+              Icons.check,
+              color: counterColor,
+            )
+          : null,
     );
   }
 }
