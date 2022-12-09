@@ -29,7 +29,7 @@ class _ScheduleFormState extends State<ScheduleForm> {
   int? startTime;
   int? endTime;
   String? content;
-  int? selectedColorId; // @NOTE 03 선택된 색깔을 구분하기 위한 변수 추가
+  int selectedColorId = 0; // @NOTE 03 선택된 색깔을 구분하기 위한 변수 추가
 
   // @NOTE 01 최초 autovalidateMode는 꺼둔 상태
   AutovalidateMode autovalidateMode = AutovalidateMode.disabled;
@@ -43,66 +43,64 @@ class _ScheduleFormState extends State<ScheduleForm> {
         // text field 밖으로 포커스가 이동될 때 키보드 숨김
         FocusScope.of(context).requestFocus(FocusNode());
       },
-      child: SafeArea(
-        child: Container(
-          color: Colors.white, // 지정 안했을때 focus out 동작 확인
-          height: MediaQuery.of(context).size.height / 2 + bottomInset, // 키패드 만큼 사이즈를 늘여줌.
-          child: Padding(
-            padding: const EdgeInsets.all(spaceSize / 2).copyWith(bottom: bottomInset), // 하단 여백
-            // 2 - 02. 입력값의 상위 컴포넌트에 Form 필드로 감싸준다
-            // key 값을 지정해줌 form안에 있는 모든 텍스트 필드들이 어덯게
-            // 동작하는지 컨트롤해주는 값
-            child: Form(
-              // 2 - 04. key에 formKey를 넣어준다
-              key: formKey,
-              // 3 - 02. 자동으로 검증한다
-              autovalidateMode: autovalidateMode,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 4 - 02. onStartSaved, onEndSaved 등 저장할 때 String 값을 받는다
-                  _Time(
-                    onStartSaved: (String? val) {
-                      startTime = int.parse(val!);
-                    },
-                    onEndSaved: (String? val) {
-                      endTime = int.parse(val!);
-                    },
+      child: Container(
+        color: Colors.white, // 지정 안했을때 focus out 동작 확인
+        height: MediaQuery.of(context).size.height / 2 + bottomInset, // 키패드 만큼 사이즈를 늘여줌.
+        child: Padding(
+          padding: const EdgeInsets.all(spaceSize / 2)
+              .copyWith(bottom: bottomInset + spaceSize / 2), // 하단 여백
+          // 2 - 02. 입력값의 상위 컴포넌트에 Form 필드로 감싸준다
+          // key 값을 지정해줌 form안에 있는 모든 텍스트 필드들이 어덯게
+          // 동작하는지 컨트롤해주는 값
+          child: Form(
+            // 2 - 04. key에 formKey를 넣어준다
+            key: formKey,
+            // 3 - 02. 자동으로 검증한다
+            autovalidateMode: autovalidateMode,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 4 - 02. onStartSaved, onEndSaved 등 저장할 때 String 값을 받는다
+                _Time(
+                  onStartSaved: (String? val) {
+                    startTime = int.parse(val!);
+                  },
+                  onEndSaved: (String? val) {
+                    endTime = int.parse(val!);
+                  },
+                ),
+                const SizedBox(height: spaceSize),
+                _Content(onSaved: (String? val) {
+                  content = val;
+                }),
+                const SizedBox(height: spaceSize),
+                FutureBuilder<List<CategoryColor>>(
+                    future: GetIt.I<LocalDatabase>().getCategoryColors(),
+                    builder: (context, snapshot) {
+                      // @NOTE 03-1 selectedColorId가 지정되지 않았으면 첫번째 색상으로 지정
+                      if (snapshot.hasData && selectedColorId == 0 && snapshot.data!.isNotEmpty) {
+                        selectedColorId = snapshot.data![0].id;
+                      }
+
+                      return _ColorPicker(
+                        colors: snapshot.hasData ? snapshot.data! : [],
+                        selectedColorId: selectedColorId,
+                        // @NOTE 04-2 callback 함수, setState를 하기 위해 인자로 함수를 전달
+                        colorSetter: (id) {
+                          setState(() {
+                            selectedColorId = id;
+                          });
+                        },
+                      );
+                    }),
+                const SizedBox(height: spaceSize),
+                SizedBox(
+                  width: double.infinity,
+                  child: _SaveButton(
+                    onPressed: onSavePressed,
                   ),
-                  const SizedBox(height: spaceSize),
-                  _Content(onSaved: (String? val) {
-                    content = val;
-                  }),
-                  const SizedBox(height: spaceSize),
-                  FutureBuilder<List<CategoryColor>>(
-                      future: GetIt.I<LocalDatabase>().getCategoryColors(),
-                      builder: (context, snapshot) {
-                        // @NOTE 03-1 selectedColorId가 지정되지 않았으면 첫번째 색상으로 지정
-                        if (snapshot.hasData &&
-                            selectedColorId == null &&
-                            snapshot.data!.isNotEmpty) {
-                          selectedColorId = snapshot.data![0].id;
-                        }
-                        return _ColorPicker(
-                          colors: snapshot.hasData ? snapshot.data! : [],
-                          selectedColorId: selectedColorId!,
-                          // @NOTE 04-2 callback 함수, setState를 하기 위해 인자로 함수를 전달
-                          colorSetter: (id) {
-                            setState(() {
-                              selectedColorId = id;
-                            });
-                          },
-                        );
-                      }),
-                  const SizedBox(height: spaceSize),
-                  SizedBox(
-                    width: double.infinity,
-                    child: _SaveButton(
-                      onPressed: onSavePressed,
-                    ),
-                  )
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
