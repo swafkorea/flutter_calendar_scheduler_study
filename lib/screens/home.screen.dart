@@ -172,11 +172,28 @@ class _ScheduleListState extends State<_ScheduleList> {
                   // @NOTE 09-3 삭제 이벤트 구현
                   GetIt.I<LocalDatabase>().removeSchedule(item.id);
                 },
-                child: ScheduleCard(
-                  startTime: item.startTime,
-                  endTime: item.endTime,
-                  content: item.content,
-                  color: color,
+                child: GestureDetector(
+                  // @NOTE 10-3 card 클릭했을 때 bottomSheet 띄움
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.white,
+                      isScrollControlled: true, // bottomSheet가 화면 절반높이 제한을 넘을 수 있도록 해줌
+                      elevation: 3,
+                      builder: (_) => SafeArea(
+                        child: ScheduleForm(
+                          selectedDate: widget.selectedDate,
+                          scheduleId: item.id, // @NOTE 10-3 수정할 때는 scheduleId를 전달한다.
+                        ),
+                      ),
+                    );
+                  },
+                  child: ScheduleCard(
+                    startTime: item.startTime,
+                    endTime: item.endTime,
+                    content: item.content,
+                    color: color,
+                  ),
                 ),
               );
             },

@@ -9,10 +9,12 @@ import 'package:calendar_scheduler_study/widgets/custom_text_field.dart';
 /// 일정 입력 폼
 class ScheduleForm extends StatefulWidget {
   final DateTime selectedDate;
+  final int? scheduleId; // @NOTE 10-2 기존 폼에서 일정 정보를 가져오기 위한 id 값을 받도록 함.
 
   const ScheduleForm({
     Key? key,
     required this.selectedDate,
+    this.scheduleId,
   }) : super(
           key: key,
         );
@@ -58,53 +60,87 @@ class _ScheduleFormState extends State<ScheduleForm> {
             key: formKey,
             // 3 - 02. 자동으로 검증한다
             autovalidateMode: autovalidateMode,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 4 - 02. onStartSaved, onEndSaved 등 저장할 때 String 값을 받는다
-                _Time(
-                  onStartSaved: (String? val) {
-                    startTime = int.parse(val!);
-                  },
-                  onEndSaved: (String? val) {
-                    endTime = int.parse(val!);
-                  },
-                ),
-                const SizedBox(height: spaceSize),
-                _Content(onSaved: (String? val) {
-                  content = val;
-                }),
-                const SizedBox(height: spaceSize),
-                FutureBuilder<List<CategoryColor>>(
-                    future: GetIt.I<LocalDatabase>().getCategoryColors(),
-                    builder: (context, snapshot) {
-                      // @NOTE 03-1 selectedColorId가 지정되지 않았으면 첫번째 색상으로 지정
-                      if (snapshot.hasData &&
-                          selectedColorId == null &&
-                          snapshot.data!.isNotEmpty) {
-                        selectedColorId = snapshot.data![0].id;
-                      }
+            child: FutureBuilder<Schedule>(
+                // @NOTE 10-5 scheduleId로 조회
+                future: widget.scheduleId == null
+                    ? null
+                    : GetIt.I<LocalDatabase>().getSchedule(widget.scheduleId!),
+                builder: (context, scheduleSnapshot) {
+                  // @NOTE 10-5 예외 처리
+                  if (scheduleSnapshot.hasError) {
+                    return const Center(
+                      child: Text('일정을 불러올 수 없습니다.'),
+                    );
+                  }
 
-                      return _ColorPicker(
-                        colors: snapshot.hasData ? snapshot.data! : [],
-                        selectedColorId: selectedColorId,
-                        // @NOTE 04-2 callback 함수, setState를 하기 위해 인자로 함수를 전달
-                        colorSetter: (id) {
-                          setState(() {
-                            selectedColorId = id;
-                          });
+                  if (scheduleSnapshot.connectionState != ConnectionState.none &&
+                      !scheduleSnapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (scheduleSnapshot.hasData && startTime == null) {
+                    startTime = scheduleSnapshot.data!.startTime;
+                    endTime = scheduleSnapshot.data!.endTime;
+                    content = scheduleSnapshot.data!.content;
+                    selectedColorId = scheduleSnapshot.data!.colorId;
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 4 - 02. onStartSaved, onEndSaved 등 저장할 때 String 값을 받는다
+                      _Time(
+                        onStartSaved: (String? val) {
+                          startTime = int.parse(val!);
                         },
-                      );
-                    }),
-                const SizedBox(height: spaceSize),
-                SizedBox(
-                  width: double.infinity,
-                  child: _SaveButton(
-                    onPressed: onSavePressed,
-                  ),
-                ),
-              ],
-            ),
+                        onEndSaved: (String? val) {
+                          endTime = int.parse(val!);
+                        },
+                        // @NOTE 10-4 초기값 전달
+                        initialStartTime: startTime?.toString() ?? '',
+                        initialEndTime: endTime?.toString() ?? '',
+                      ),
+                      const SizedBox(height: spaceSize),
+                      _Content(
+                        onSaved: (String? val) {
+                          content = val;
+                        },
+                        initialValue: content ?? '',
+                      ),
+                      const SizedBox(height: spaceSize),
+                      FutureBuilder<List<CategoryColor>>(
+                          future: GetIt.I<LocalDatabase>().getCategoryColors(),
+                          builder: (context, colorSnapshot) {
+                            // @NOTE 03-1 selectedColorId가 지정되지 않았으면 첫번째 색상으로 지정
+                            if (colorSnapshot.hasData &&
+                                selectedColorId == null &&
+                                colorSnapshot.data!.isNotEmpty) {
+                              selectedColorId = colorSnapshot.data![0].id;
+                            }
+
+                            return _ColorPicker(
+                              colors: colorSnapshot.hasData ? colorSnapshot.data! : [],
+                              selectedColorId: selectedColorId,
+                              // @NOTE 04-2 callback 함수, setState를 하기 위해 인자로 함수를 전달
+                              colorSetter: (id) {
+                                setState(() {
+                                  selectedColorId = id;
+                                });
+                              },
+                            );
+                          }),
+                      const SizedBox(height: spaceSize),
+                      SizedBox(
+                        width: double.infinity,
+                        child: _SaveButton(
+                          onPressed: onSavePressed,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
           ),
         ),
       ),
@@ -127,14 +163,23 @@ class _ScheduleFormState extends State<ScheduleForm> {
       // true 리턴했을 떄
       formKey.currentState!.save();
 
-      // @NOTE 05 폼 정보 저장 - schedule 생성
-      final key = await GetIt.I<LocalDatabase>().createSchedule(SchedulesCompanion(
+      // @NOTE 05 form 정보 저장
+      final form = SchedulesCompanion(
         date: Value(widget.selectedDate),
         startTime: Value(startTime!),
         endTime: Value(endTime!),
         content: Value(content!),
         colorId: Value(selectedColorId!),
-      ));
+      );
+
+      // @NOTE 10-6 update와 create 구분
+      if (widget.scheduleId == null) {
+        // @NOTE 05 schedule 생성
+        await GetIt.I<LocalDatabase>().createSchedule(form);
+      } else {
+        // @NOTE 10-6 update
+        await GetIt.I<LocalDatabase>().updateSchedule(widget.scheduleId!, form);
+      }
 
       Navigator.of(context).pop(); // @NOTE 05-1 저장 후 bottomSheet 닫기
     } else {
@@ -147,11 +192,15 @@ class _ScheduleFormState extends State<ScheduleForm> {
 class _Time extends StatelessWidget {
   final FormFieldSetter<String> onStartSaved;
   final FormFieldSetter<String> onEndSaved;
+  final String initialStartTime;
+  final String initialEndTime;
 
   const _Time({
+    Key? key,
     required this.onStartSaved,
     required this.onEndSaved,
-    Key? key,
+    required this.initialStartTime,
+    required this.initialEndTime,
   }) : super(key: key);
 
   @override
@@ -165,6 +214,7 @@ class _Time extends StatelessWidget {
             label: '시작 시간',
             isTime: true,
             onSaved: onStartSaved,
+            initialValue: initialStartTime,
           ),
         ),
         const SizedBox(width: spaceSize),
@@ -173,6 +223,7 @@ class _Time extends StatelessWidget {
             label: '마감 시간',
             isTime: true,
             onSaved: onEndSaved,
+            initialValue: initialEndTime,
           ),
         ),
       ],
@@ -182,10 +233,12 @@ class _Time extends StatelessWidget {
 
 class _Content extends StatelessWidget {
   final FormFieldSetter<String> onSaved;
+  final String initialValue;
 
   const _Content({
-    required this.onSaved,
     Key? key,
+    required this.onSaved,
+    required this.initialValue,
   }) : super(key: key);
 
   @override
@@ -195,6 +248,7 @@ class _Content extends StatelessWidget {
         label: '내용',
         isTime: false,
         onSaved: onSaved,
+        initialValue: initialValue,
       ),
     );
   }

@@ -5,14 +5,16 @@ import 'package:calendar_scheduler_study/constants.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
+  final String initialValue; // @NOTE 10-4 전달 받을 초기값
   final bool isTime;
   final FormFieldSetter<String> onSaved;
 
   const CustomTextField({
     Key? key,
     required this.label,
-    required this.onSaved,
+    required this.initialValue,
     this.isTime = false,
+    required this.onSaved,
   }) : super(key: key);
 
   @override
@@ -62,6 +64,7 @@ class CustomTextField extends StatelessWidget {
 
         return null;
       },
+      initialValue: initialValue, // @NOTE 10-4 초기값 설정
       // keyboard layout을 선택, 사용자의 입력값은 제약할 수 없음
       keyboardType: isTime ? TextInputType.number : TextInputType.multiline,
       // 사용자 입력값 제약
