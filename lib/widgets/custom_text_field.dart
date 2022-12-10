@@ -69,6 +69,9 @@ class CustomTextField extends StatelessWidget {
       // multiline 관련 속성
       maxLines: isTime ? 1 : null,
       expands: !isTime,
+      decoration: InputDecoration(
+        suffixText: isTime ? '시' : null,
+      ),
     );
   }
 }

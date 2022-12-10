@@ -43,6 +43,9 @@ class LocalDatabase extends _$LocalDatabase {
     return query.watch();
   }
 
+  // @NOTE 09-1 delete method
+  Future<int> removeSchedule(int id) => (delete(schedules)..where((tbl) => tbl.id.equals(id))).go();
+
   @override
   int get schemaVersion => 1;
 }

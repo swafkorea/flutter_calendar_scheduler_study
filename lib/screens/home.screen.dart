@@ -164,11 +164,20 @@ class _ScheduleListState extends State<_ScheduleList> {
                 color = Color(int.parse('FF${category.hexCode}', radix: 16));
               }
 
-              return ScheduleCard(
-                startTime: item.startTime,
-                endTime: item.endTime,
-                content: item.content,
-                color: color,
+              // @NOTE 09-1 목록에서 item을 삭제하기 위해 dismissible 위젯 추가
+              return Dismissible(
+                key: ObjectKey(item.id), // @NOTE 09-2 key 필드는 필수
+                direction: DismissDirection.endToStart,
+                onDismissed: (direction) {
+                  // @NOTE 09-3 삭제 이벤트 구현
+                  GetIt.I<LocalDatabase>().removeSchedule(item.id);
+                },
+                child: ScheduleCard(
+                  startTime: item.startTime,
+                  endTime: item.endTime,
+                  content: item.content,
+                  color: color,
+                ),
               );
             },
             separatorBuilder: (context, index) => const SizedBox(height: spaceSize / 4),
