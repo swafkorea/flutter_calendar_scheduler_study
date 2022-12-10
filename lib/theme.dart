@@ -4,8 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'constants.dart';
 
 ThemeData appTheme(BuildContext context) => ThemeData(
-      // @TODO material3 적용
-      primarySwatch: primaryColor,
+      // @NOTE 99 material3 적용
+      // useMaterial3: true,
+      // colorSchemeSeed: Colors.purple,
+      primarySwatch: primaryColor, // @NOTE 99-1 colorSchemeSeed와 충돌 (둘중 하나만 지정해야함)
       // google_fonts 사용
       // 간단하게는 다음처럼...
       // fontFamily: GoogleFonts.nanumPenScript().fontFamily,

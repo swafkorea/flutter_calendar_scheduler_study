@@ -262,6 +262,7 @@ class _SaveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(elevation: 8),
       onPressed: onPressed,
       child: const Text('저장'),
     );
