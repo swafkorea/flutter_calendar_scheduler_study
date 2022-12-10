@@ -17,7 +17,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  DateTime selectedDay = DateTime(
+  // @NOTE 07-3 timezone 일치
+  DateTime selectedDay = DateTime.utc(
     DateTime.now().year,
     DateTime.now().month,
     DateTime.now().day,
@@ -114,6 +115,8 @@ class _ScheduleList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // @NOTE 07-1 timezone 확인
+    print('date: $selectedDate');
     return StreamBuilder<List<Schedule>>(
         // @NOTE 06-3 stream 으로 일정 목록 읽어와 렌더링
         stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
@@ -131,9 +134,13 @@ class _ScheduleList extends StatelessWidget {
             );
           }
 
+          print('data : ${snapshot.data}');
+
           return ListView.separated(
             itemBuilder: (context, index) {
               final item = snapshot.data![index]; // @NOTE 06-5 데이터 사용
+
+              // @TODO category color 바인딩
 
               return ScheduleCard(
                 startTime: item.startTime,
