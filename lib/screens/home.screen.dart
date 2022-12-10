@@ -17,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // @NOTE 07-3 timezone 일치
+  // @NOTE 07 timezone 일치
   DateTime selectedDay = DateTime.utc(
     DateTime.now().year,
     DateTime.now().month,
@@ -105,7 +105,7 @@ class _AddButton extends StatelessWidget {
 }
 
 /// selectedDay에 해당하는 일정 목록
-class _ScheduleList extends StatelessWidget {
+class _ScheduleList extends StatefulWidget {
   final DateTime selectedDate;
 
   const _ScheduleList({
@@ -114,12 +114,29 @@ class _ScheduleList extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_ScheduleList> createState() => _ScheduleListState();
+}
+
+class _ScheduleListState extends State<_ScheduleList> {
+  List<CategoryColor> categories = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getCategories(); // @NOTE 08 category color 바인딩을 위해 미리 목록을 불러옴.
+  }
+
+  Future<void> getCategories() async {
+    categories = await GetIt.I<LocalDatabase>().getCategoryColors();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // @NOTE 07-1 timezone 확인
-    print('date: $selectedDate');
+    print('date: ${widget.selectedDate}');
     return StreamBuilder<List<Schedule>>(
         // @NOTE 06-3 stream 으로 일정 목록 읽어와 렌더링
-        stream: GetIt.I<LocalDatabase>().watchSchedules(selectedDate),
+        stream: GetIt.I<LocalDatabase>().watchSchedules(widget.selectedDate),
         builder: (context, snapshot) {
           // @NOTE 06-4 data가 없을때 예외 처리
           if (!snapshot.hasData) {
@@ -134,19 +151,24 @@ class _ScheduleList extends StatelessWidget {
             );
           }
 
-          print('data : ${snapshot.data}');
+          // print('data : ${snapshot.data}');
 
           return ListView.separated(
             itemBuilder: (context, index) {
               final item = snapshot.data![index]; // @NOTE 06-5 데이터 사용
+              Color color = Colors.black;
 
-              // @TODO category color 바인딩
+              // @NOTE 08-1 category color 바인딩
+              if (categories.isNotEmpty) {
+                final category = categories.where((x) => x.id == item.colorId).first;
+                color = Color(int.parse('FF${category.hexCode}', radix: 16));
+              }
 
               return ScheduleCard(
                 startTime: item.startTime,
                 endTime: item.endTime,
                 content: item.content,
-                color: Colors.teal,
+                color: color,
               );
             },
             separatorBuilder: (context, index) => const SizedBox(height: spaceSize / 4),
