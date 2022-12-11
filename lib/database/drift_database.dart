@@ -35,7 +35,7 @@ class LocalDatabase extends _$LocalDatabase {
   // @NOTE 06 stream을 리턴하는 메소드 생성
   Stream<List<Schedule>> watchSchedules(DateTime date) {
     // @NOTE 07-2 filter timezone 확인
-    print('filter date : $date');
+    // print('filter date : $date');
     final query = select(schedules)
       ..where((tbl) => tbl.date.equals(date)) // @NOTE 06-1 date로 필터링
       ..orderBy([(x) => OrderingTerm.asc(x.startTime)]); // @NOTE 06-2 날짜순 정렬
