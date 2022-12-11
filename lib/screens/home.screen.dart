@@ -133,7 +133,7 @@ class _ScheduleListState extends State<_ScheduleList> {
   @override
   Widget build(BuildContext context) {
     // @NOTE 07-1 timezone 확인
-    // print('date: ${widget.selectedDate}');
+    print('date: ${widget.selectedDate}');
     return StreamBuilder<List<Schedule>>(
         // @NOTE 06-3 stream 으로 일정 목록 읽어와 렌더링
         stream: GetIt.I<LocalDatabase>().watchSchedules(widget.selectedDate),
